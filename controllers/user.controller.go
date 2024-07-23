@@ -7,9 +7,9 @@ import (
 	"os"
 	"strconv"
 
-	"quest/models"
-	"quest/services"
-	"quest/utils"
+	"geniale/models"
+	"geniale/services"
+	"geniale/utils"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"

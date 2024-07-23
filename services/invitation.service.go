@@ -1,7 +1,7 @@
 package services
 
 import (
-	"quest/models"
+	"geniale/models"
 
 	"gorm.io/gorm"
 )

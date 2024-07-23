@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	models "quest/models"
+	models "geniale/models"
 
 	"gorm.io/gorm"
 )

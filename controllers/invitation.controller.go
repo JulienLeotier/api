@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"geniale/models"
+	"geniale/services"
 	"net/http"
-	"quest/models"
-	"quest/services"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"quest/models"
+	"geniale/models"
 	"strconv"
 
 	"gorm.io/gorm"

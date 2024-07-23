@@ -1,11 +1,11 @@
 package moduleRouter
 
 import (
-	"quest/controllers"
-	"quest/models"
-	"quest/repositories"
-	"quest/services"
-	"quest/utils"
+	"geniale/controllers"
+	"geniale/models"
+	"geniale/repositories"
+	"geniale/services"
+	"geniale/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

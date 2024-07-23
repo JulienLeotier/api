@@ -1,4 +1,4 @@
-module quest
+module geniale
 
 go 1.22.0
 

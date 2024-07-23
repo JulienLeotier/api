@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	models "quest/models"
+	models "geniale/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

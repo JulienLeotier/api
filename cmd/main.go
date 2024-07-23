@@ -13,8 +13,8 @@ import (
 	"github.com/markbates/goth/providers/facebook"
 	"github.com/markbates/goth/providers/google"
 
-	moduleRouter "quest/routers"
-	utils "quest/utils"
+	moduleRouter "geniale/routers"
+	utils "geniale/utils"
 )
 
 func main() {

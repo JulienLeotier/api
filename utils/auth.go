@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	models "quest/models"
+	models "geniale/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
