@@ -28,4 +28,5 @@ main
 config.yml
 .env
 credentials.json
-.vercel
+__debug_bin*
+cmd/uploads/*

@@ -38,20 +38,6 @@ func SetupDatabase() {
 		log.Fatalf("Failed to auto migrate UserCode model: %v", err)
 	}
 
-	err = DB.AutoMigrate(&models.Group{})
-	if err != nil {
-		log.Fatalf("Failed to auto migrate Group model: %v", err)
-	}
-
-	err = DB.AutoMigrate(&models.GroupUser{})
-	if err != nil {
-		log.Fatalf("Failed to auto migrate GroupUser model: %v", err)
-	}
-
-	err = DB.AutoMigrate(&models.Entity{})
-	if err != nil {
-		log.Fatalf("Failed to auto migrate Entity model: %v", err)
-	}
 	err = DB.AutoMigrate(&models.Right{})
 	if err != nil {
 		log.Fatalf("Failed to auto migrate Right model: %v", err)
@@ -69,16 +55,12 @@ func SetupDatabase() {
 		log.Fatalf("Failed to auto migrate RoleUser model: %v", err)
 	}
 
+	err = DB.AutoMigrate(&models.Image{})
+	if err != nil {
+		log.Fatalf("Failed to auto migrate Image model: %v", err)
+	}
+
 	DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);")
-
-	// Create group admin if it doesn't exist
-	DB.Exec("INSERT INTO groups (name) SELECT 'admin' WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = 'admin');")
-
-	// Create group user if it doesn't exist
-	DB.Exec("INSERT INTO groups (name) SELECT 'user' WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = 'user');")
-
-	// Create default entity if it doesn't exist
-	DB.Exec("INSERT INTO ENTITY (name) SELECT 'default' WHERE NOT EXISTS (SELECT 1 FROM ENTITY WHERE name = 'default');")
 
 	// Create default rights if they don't exist
 	DB.Exec("INSERT INTO rights (name) SELECT 'create' WHERE NOT EXISTS (SELECT 1 FROM rights WHERE name = 'create');")

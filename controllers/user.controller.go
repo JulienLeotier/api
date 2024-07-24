@@ -39,13 +39,13 @@ func (ctrl *UserController) CreateUser(c *gin.Context) {
 	validatedData := c.MustGet("dto").(*models.UserCreateDTO)
 	tx := c.MustGet("tx").(*gorm.DB)
 
-	user, groupUser, err := ctrl.UserService.CreateUser(*validatedData, tx)
+	user, err := ctrl.UserService.CreateUser(*validatedData, tx)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User created successfully", "user": user, "group_user": groupUser})
+	c.JSON(http.StatusOK, gin.H{"message": "User created successfully", "user": user})
 }
 
 func (ctrl *UserController) LoginUser(c *gin.Context) {

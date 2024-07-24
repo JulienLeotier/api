@@ -46,6 +46,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 	moduleRouter.SetupModuleRoutes(r, utils.DB)
+	r.Static("/uploads", "./uploads")
 
 	err := r.Run()
 	if err != nil {

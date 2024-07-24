@@ -12,16 +12,12 @@ import (
 )
 
 type UserService struct {
-	UserRepo      *repositories.UserRepository
-	GroupRepo     *repositories.GroupRepository
-	GroupUserRepo *repositories.GroupUserRepository
+	UserRepo *repositories.UserRepository
 }
 
-func NewUserService(userRepo *repositories.UserRepository, groupRepo *repositories.GroupRepository, groupUserRepo *repositories.GroupUserRepository) *UserService {
+func NewUserService(userRepo *repositories.UserRepository) *UserService {
 	return &UserService{
-		UserRepo:      userRepo,
-		GroupRepo:     groupRepo,
-		GroupUserRepo: groupUserRepo,
+		UserRepo: userRepo,
 	}
 }
 
@@ -58,7 +54,7 @@ func (s *UserService) CreateTmpUser(validatedData models.UserCreateTmpDTO, tx *g
 	return newUser, nil
 
 }
-func (s *UserService) CreateUser(validatedData models.UserCreateDTO, tx *gorm.DB) (*models.User, *models.GroupUser, error) {
+func (s *UserService) CreateUser(validatedData models.UserCreateDTO, tx *gorm.DB) (*models.User, error) {
 	hashedPassword, _ := utils.HashPassword(validatedData.Password)
 	newUser := &models.User{
 		Email:    validatedData.Email,
@@ -67,28 +63,14 @@ func (s *UserService) CreateUser(validatedData models.UserCreateDTO, tx *gorm.DB
 	}
 
 	if err := s.ExistingUser(*newUser); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	if err := tx.Create(newUser).Error; err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	group, err := s.GroupRepo.FindByName("user")
-	if err != nil {
-		return nil, nil, errors.New("group not found")
-	}
-
-	groupUser := &models.GroupUser{
-		GroupID: group.ID,
-		UserID:  newUser.ID,
-	}
-
-	if err := tx.Create(groupUser).Error; err != nil {
-		return nil, nil, err
-	}
-
-	return newUser, groupUser, nil
+	return newUser, nil
 }
 
 func (s *UserService) LoginUser(validatedData models.LoginRequestDTO) (string, error) {
@@ -101,12 +83,8 @@ func (s *UserService) LoginUser(validatedData models.LoginRequestDTO) (string, e
 		return "", errors.New("incorrect password")
 	}
 
-	groupName, err := s.GroupRepo.FindGroupNameByUserID(foundUser.ID)
-	if err != nil {
-		return "", errors.New("could not get user group")
-	}
 	idToString := strconv.Itoa(int(foundUser.ID))
-	token, err := utils.GenerateToken(foundUser.Email, groupName, idToString)
+	token, err := utils.GenerateToken(foundUser.Email, idToString)
 	if err != nil {
 		return "", errors.New("could not generate token")
 	}

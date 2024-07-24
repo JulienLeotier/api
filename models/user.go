@@ -23,7 +23,6 @@ type User struct {
 	Password           string     `json:"-"`
 	Phone              string     `json:"phone"`
 	PasswordResetToken string     `json:"-"`
-	Entity             []Entity   `gorm:"many2many:entity_users;"`
 	IsGoogleUser       bool       `json:"is_google_user" gorm:"default:false"`
 	EmailChecked       bool       `json:"email_checked" gorm:"default:false"`
 	Type               UserType   `sql:"type:ENUM('0', '1', '2', '3');default:'1'" json:"type"`

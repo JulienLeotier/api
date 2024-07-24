@@ -70,7 +70,7 @@ func CompleteAuthHandler(c *gin.Context) {
 
 	// Generate JWT token for the user
 	idToString := strconv.Itoa(int(existingUser.ID))
-	token, err := GenerateToken(existingUser.Email, "user", idToString)
+	token, err := GenerateToken(existingUser.Email, idToString)
 	if err != nil {
 		println(gin.H{"error": "Failed to generate token"})
 		tx.Rollback()
