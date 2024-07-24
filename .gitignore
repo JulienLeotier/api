@@ -29,4 +29,4 @@ config.yml
 .env
 credentials.json
 __debug_bin*
-cmd/uploads/*
+uploads/*

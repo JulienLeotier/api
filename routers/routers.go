@@ -48,6 +48,8 @@ func SetupModuleRoutes(r *gin.Engine, db *gorm.DB) {
 		transcation.DELETE("/rights/:id", utils.AuthMiddleware, utils.GetIdMiddleware, rightController.RemoveRight)
 		transcation.POST("/images", utils.AuthMiddleware, imageController.UploadImage)
 		transcation.GET("/images/:id", utils.AuthMiddleware, imageController.GetImage)
+		transcation.GET("/images", utils.AuthMiddleware, imageController.GetImages)
+		transcation.DELETE("/images/:id", utils.AuthMiddleware, imageController.RemoveImage)
 	}
 	r.GET("/users/:id", utils.AuthMiddleware, utils.UserAuthMiddleware, userController.GetUser)
 	r.GET("/whoiam", utils.AuthMiddleware, userController.WhoIam)

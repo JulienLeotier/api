@@ -3,6 +3,7 @@ package controllers
 import (
 	"geniale/services"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
@@ -47,4 +48,37 @@ func (c *ImageController) GetImage(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"image": image})
+}
+
+func (c *ImageController) GetImages(ctx *gin.Context) {
+	images, err := c.service.GetImages()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"images": images})
+}
+
+func (c *ImageController) RemoveImage(ctx *gin.Context) {
+	id := ctx.Param("id")
+	image, err := c.service.GetImage(id)
+	if err != nil {
+		if err.Error() == "record not found" {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Image not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if err := os.Remove("./" + image.FilePath); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove image"})
+		return
+	}
+	if err := c.service.RemoveImage(*image); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Image removed successfully"})
 }
