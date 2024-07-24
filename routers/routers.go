@@ -46,7 +46,7 @@ func SetupModuleRoutes(r *gin.Engine, db *gorm.DB) {
 		transcation.PUT("/roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, utils.ValidationMiddleware(new(models.RoleUpdateDTO)), rightController.UpdateRole)
 		transcation.DELETE("/roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, rightController.RemoveRole)
 		transcation.DELETE("/rights/:id", utils.AuthMiddleware, utils.GetIdMiddleware, rightController.RemoveRight)
-		transcation.POST("/images", utils.AuthMiddleware, imageController.UploadImage)
+		transcation.POST("/images", utils.AuthMiddleware, imageController.UploadImages)
 		transcation.GET("/images/:id", utils.AuthMiddleware, imageController.GetImage)
 		transcation.GET("/images", utils.AuthMiddleware, imageController.GetImages)
 		transcation.DELETE("/images/:id", utils.AuthMiddleware, imageController.RemoveImage)

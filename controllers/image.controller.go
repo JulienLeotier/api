@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"geniale/models"
 	"geniale/services"
 	"net/http"
 	"os"
@@ -17,26 +18,39 @@ func NewImageController(service services.ImageService) *ImageController {
 	return &ImageController{service: service}
 }
 
-func (c *ImageController) UploadImage(ctx *gin.Context) {
-	file, err := ctx.FormFile("file")
+func (c *ImageController) UploadImages(ctx *gin.Context) {
+	file, err := ctx.MultipartForm()
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No file is received"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No files are received"})
 		return
 	}
 
-	filename := filepath.Base(file.Filename)
-	if err := ctx.SaveUploadedFile(file, "./uploads/"+filename); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to save the file"})
+	files := file.File["file"]
+	if len(files) == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No files are received"})
 		return
 	}
 
-	image, err := c.service.UploadImage("uploads/" + filename)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	var images []services.ImageDTO
+
+	for _, file := range files {
+		filename := filepath.Base(file.Filename)
+		filePath := "./uploads/" + filename
+		if err := ctx.SaveUploadedFile(file, filePath); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to save the file"})
+			return
+		}
+
+		image, err := c.service.UploadImage(filePath)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		images = append(images, *image)
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"image": image})
+	ctx.JSON(http.StatusOK, gin.H{"images": images})
 }
 
 func (c *ImageController) GetImage(ctx *gin.Context) {
@@ -75,7 +89,7 @@ func (c *ImageController) RemoveImage(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove image"})
 		return
 	}
-	if err := c.service.RemoveImage(*image); err != nil {
+	if err := c.service.RemoveImage(models.Image(*image)); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
