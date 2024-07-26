@@ -60,6 +60,11 @@ func SetupDatabase() {
 		log.Fatalf("Failed to auto migrate Image model: %v", err)
 	}
 
+	err = DB.AutoMigrate(&models.Room{}, &models.File{})
+	if err != nil {
+		log.Fatalf("Failed to auto migrate Room model: %v", err)
+	}
+
 	DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);")
 
 	// Create default rights if they don't exist

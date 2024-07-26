@@ -16,7 +16,7 @@ func init() {
 
 func ValidationMiddleware(dto any) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if err := c.ShouldBindJSON(dto); err != nil {
+		if err := c.ShouldBind(dto); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			c.Abort()
 			return

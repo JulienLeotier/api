@@ -1,29 +1,34 @@
 package models
 
+import (
+	"mime/multipart"
+
+	"gorm.io/gorm"
+)
+
 type Room struct {
-	ID          uint     `json:"id" gorm:"primary_key"`
-	Name        string   `json:"name" gorm:"unique;not null"`
-	Description string   `json:"description"`
-	Photos      []string `json:"photos"`
-	Videos      []string `json:"videos"`
-	Audios      []string `json:"audios"`
+	gorm.Model
+	Name        string `json:"name" gorm:"unique;not null"`
+	Description string `json:"description"`
+	Files       []File `json:"files" gorm:"many2many:room_files;"`
 }
 
-type VariantList struct {
-	ID            uint   `json:"id" gorm:"primary_key"`
-	Variants      []User `json:"variants" gorm:"many2many:variant_lists;"`
-	PriorityFirst []User `json:"priority_first" gorm:"many2many:variant_lists;"`
+type File struct {
+	gorm.Model
+	URL   string `json:"url" gorm:"not null"`
+	Rooms []Room `json:"-" gorm:"many2many:room_files;"`
 }
 
-type RolePlay struct {
-	ID          uint     `json:"id" gorm:"primary_key"`
-	Name        string   `json:"name" gorm:"unique;not null"`
+type RoomCreateDTO struct {
+	ID          uint                    `json:"id"`
+	Name        string                  `form:"name" binding:"required"`
+	Description string                  `form:"description"`
+	Files       []*multipart.FileHeader `form:"file" binding:"required"`
+}
+
+type RoomResponseDTO struct {
+	ID          uint     `json:"id"`
+	Name        string   `json:"name"`
 	Description string   `json:"description"`
-	Photo       []string `json:"photo"`
-	Audios      []string `json:"audios"`
-	Videos      []string `json:"videos"`
-	Room        Room     `json:"room" gorm:"foreignKey:RoomID"`
-	User        User     `json:"user" gorm:"foreignKey:UserID"`
-	IsVariant   bool     `json:"is_variant"`
-	IsDetective bool     `json:"is_detective"`
+	Files       []string `json:"files"`
 }

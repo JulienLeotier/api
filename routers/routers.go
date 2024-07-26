@@ -25,6 +25,10 @@ func SetupModuleRoutes(r *gin.Engine, db *gorm.DB) {
 	imageService := services.NewImageService(imageRepository)
 	imageController := controllers.NewImageController(imageService)
 
+	roomRepository := repositories.NewRoomRepository(db)
+	roomService := services.NewRoomService(roomRepository)
+	roomController := controllers.NewRoomController(roomService)
+
 	transcation := r.Group("/")
 	transcation.Use(utils.TransactionMiddleware(db))
 	{
@@ -46,10 +50,18 @@ func SetupModuleRoutes(r *gin.Engine, db *gorm.DB) {
 		transcation.PUT("/roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, utils.ValidationMiddleware(new(models.RoleUpdateDTO)), rightController.UpdateRole)
 		transcation.DELETE("/roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, rightController.RemoveRole)
 		transcation.DELETE("/rights/:id", utils.AuthMiddleware, utils.GetIdMiddleware, rightController.RemoveRight)
+
+		// Image routes
 		transcation.POST("/images", utils.AuthMiddleware, imageController.UploadImages)
 		transcation.GET("/images/:id", utils.AuthMiddleware, imageController.GetImage)
 		transcation.GET("/images", utils.AuthMiddleware, imageController.GetImages)
 		transcation.DELETE("/images/:id", utils.AuthMiddleware, imageController.RemoveImage)
+		// Room routes
+		transcation.POST("/rooms", utils.AuthMiddleware, utils.ValidationMiddleware(new(models.RoomCreateDTO)), roomController.CreateRoom)
+		transcation.GET("/rooms/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomController.GetRoom)
+		transcation.DELETE("/rooms/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomController.DeleteRoom)
+		transcation.PATCH("/rooms/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomController.DeleteRoom)
+		transcation.GET("/rooms", utils.AuthMiddleware, roomController.GetAllRooms)
 	}
 	r.GET("/users/:id", utils.AuthMiddleware, utils.UserAuthMiddleware, userController.GetUser)
 	r.GET("/whoiam", utils.AuthMiddleware, userController.WhoIam)

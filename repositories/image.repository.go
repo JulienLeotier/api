@@ -41,5 +41,5 @@ func (r *imageRepository) GetAll() ([]models.Image, error) {
 }
 
 func (r *imageRepository) Remove(id string) error {
-	return r.DB.Delete(&models.Image{}, id).Error
+	return r.DB.Unscoped().Delete(&models.Image{}, id).Error
 }
