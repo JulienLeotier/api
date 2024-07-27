@@ -76,3 +76,11 @@ func (r *UserRepository) GetCode(user *models.User) (*models.UserCode, error) {
 	}
 	return userCode, nil
 }
+
+func (r *UserRepository) GetUserByID(userID uint, tx *gorm.DB) (*models.User, error) {
+	var user models.User
+	if err := tx.First(&user, userID).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

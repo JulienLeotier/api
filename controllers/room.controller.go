@@ -38,11 +38,11 @@ func (ctrl *RoomController) CreateRoom(ctx *gin.Context) {
 }
 
 func (ctrl *RoomController) GetRoom(ctx *gin.Context) {
-	id := ctx.MustGet("id").(string)
+	roomID := ctx.MustGet("id").(string)
 
 	tx := ctx.MustGet("tx").(*gorm.DB)
 
-	room, err := ctrl.services.GetRoomByID(id, tx)
+	room, err := ctrl.services.GetRoomByID(roomID, tx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -64,11 +64,11 @@ func (ctrl *RoomController) GetAllRooms(ctx *gin.Context) {
 }
 
 func (ctrl *RoomController) DeleteRoom(ctx *gin.Context) {
-	id := ctx.MustGet("id").(string)
+	roomID := ctx.MustGet("id").(string)
 
 	tx := ctx.MustGet("tx").(*gorm.DB)
 
-	if err := ctrl.services.DeleteRoom(id, tx); err != nil {
+	if err := ctrl.services.DeleteRoom(roomID, tx); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -77,7 +77,7 @@ func (ctrl *RoomController) DeleteRoom(ctx *gin.Context) {
 }
 
 func (ctrl *RoomController) UpdateRoom(ctx *gin.Context) {
-	id := ctx.MustGet("id").(string)
+	roomID := ctx.MustGet("id").(string)
 
 	var validatedData models.RoomCreateDTO
 	if err := ctx.ShouldBind(&validatedData); err != nil {
@@ -87,7 +87,7 @@ func (ctrl *RoomController) UpdateRoom(ctx *gin.Context) {
 
 	tx := ctx.MustGet("tx").(*gorm.DB)
 
-	room, err := ctrl.services.UpdateRoom(id, validatedData, tx)
+	room, err := ctrl.services.UpdateRoom(roomID, validatedData, tx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -26,8 +26,12 @@ func SetupModuleRoutes(r *gin.Engine, db *gorm.DB) {
 	imageController := controllers.NewImageController(imageService)
 
 	roomRepository := repositories.NewRoomRepository(db)
-	roomService := services.NewRoomService(roomRepository)
+	roomService := services.NewRoomService(roomRepository, *userRepo)
 	roomController := controllers.NewRoomController(roomService)
+
+	roomRoleRepository := repositories.NewRoomRoleRepository(db)
+	roomRoleService := services.NewRoomRoleService(roomRoleRepository)
+	roomRoleController := controllers.NewRoomRoleController(roomRoleService)
 
 	transcation := r.Group("/")
 	transcation.Use(utils.TransactionMiddleware(db))
@@ -60,8 +64,17 @@ func SetupModuleRoutes(r *gin.Engine, db *gorm.DB) {
 		transcation.POST("/rooms", utils.AuthMiddleware, utils.ValidationMiddleware(new(models.RoomCreateDTO)), roomController.CreateRoom)
 		transcation.GET("/rooms/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomController.GetRoom)
 		transcation.DELETE("/rooms/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomController.DeleteRoom)
-		transcation.PATCH("/rooms/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomController.DeleteRoom)
+		transcation.PATCH("/rooms/:id", utils.AuthMiddleware, utils.ValidationMiddleware(new(models.RoomCreateDTO)), utils.GetIdMiddleware, roomController.UpdateRoom)
 		transcation.GET("/rooms", utils.AuthMiddleware, roomController.GetAllRooms)
+
+		// room role routes
+		transcation.POST("/room_roles", utils.AuthMiddleware, roomRoleController.CreateRoomRole)
+		transcation.PUT("/room_roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomRoleController.UpdateRoomRole)
+		transcation.GET("/room_roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomRoleController.GetRoomRole)
+		transcation.GET("/room_roles", utils.AuthMiddleware, roomRoleController.GetAllRoomRoles)
+		transcation.DELETE("/room_roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomRoleController.DeleteRoomRole)
+		transcation.GET("/room_roles/user/:id", utils.AuthMiddleware, utils.UserAuthMiddleware, roomRoleController.GetRoomRoleByUserID)
+
 	}
 	r.GET("/users/:id", utils.AuthMiddleware, utils.UserAuthMiddleware, userController.GetUser)
 	r.GET("/whoiam", utils.AuthMiddleware, userController.WhoIam)

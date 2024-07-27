@@ -44,7 +44,7 @@ func (r *roomRepository) CreateRoom(room *models.Room, tx *gorm.DB) (*models.Roo
 
 func (r *roomRepository) GetRoomByID(roomID string, tx *gorm.DB) (*models.Room, error) {
 	var room models.Room
-	if err := tx.Preload("Files").First(&room, roomID).Error; err != nil {
+	if err := tx.Preload("Files").Preload("Variant").Preload("Detective").First(&room, roomID).Error; err != nil {
 		return nil, err
 	}
 	return &room, nil
@@ -52,7 +52,7 @@ func (r *roomRepository) GetRoomByID(roomID string, tx *gorm.DB) (*models.Room, 
 
 func (r *roomRepository) GetAllRooms(tx *gorm.DB) ([]models.Room, error) {
 	var rooms []models.Room
-	if err := tx.Preload("Files").Find(&rooms).Error; err != nil {
+	if err := tx.Preload("Files").Preload("Variant").Preload("Detective").Find(&rooms).Error; err != nil {
 		return nil, err
 	}
 	return rooms, nil
@@ -67,14 +67,17 @@ func (r *roomRepository) DeleteRoom(roomID string, tx *gorm.DB) error {
 
 	// Delete the associated files
 	for _, file := range room.Files {
+		// Remove associations from the join table
 		if err := tx.Model(&file).Association("Rooms").Clear(); err != nil {
 			return err
 		}
-		if err := tx.Unscoped().Delete(&file).Error; err != nil {
+
+		// Remove the file from the file system
+		if err := os.Remove(file.URL); err != nil && !os.IsNotExist(err) {
 			return err
 		}
-		// Remove the file from the file system
-		if err := os.Remove(file.URL); err != nil {
+		// Delete the file from the database
+		if err := tx.Unscoped().Delete(&file).Error; err != nil {
 			return err
 		}
 	}

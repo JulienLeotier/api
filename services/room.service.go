@@ -21,10 +21,11 @@ type RoomService interface {
 
 type roomService struct {
 	repository repositories.RoomRepository
+	userRepo   repositories.UserRepository
 }
 
-func NewRoomService(repo repositories.RoomRepository) RoomService {
-	return &roomService{repository: repo}
+func NewRoomService(repo repositories.RoomRepository, userRepo repositories.UserRepository) RoomService {
+	return &roomService{repository: repo, userRepo: userRepo}
 }
 
 func (s *roomService) CreateRoom(validationData models.RoomCreateDTO, tx *gorm.DB) (*models.RoomResponseDTO, error) {
@@ -46,6 +47,8 @@ func (s *roomService) CreateRoom(validationData models.RoomCreateDTO, tx *gorm.D
 		Name:        validationData.Name,
 		Description: validationData.Description,
 		Files:       files,
+		VariantID:   validationData.Variant,
+		DetectiveID: validationData.Detective,
 	}
 	roomSave, err := s.repository.CreateRoom(room, tx)
 	if err != nil {
@@ -62,6 +65,8 @@ func (s *roomService) CreateRoom(validationData models.RoomCreateDTO, tx *gorm.D
 		Name:        roomSave.Name,
 		Description: roomSave.Description,
 		Files:       responseFiles,
+		Variant:     roomSave.Variant,
+		Detective:   roomSave.Detective,
 	}, nil
 }
 
@@ -81,6 +86,8 @@ func (s *roomService) GetRoomByID(roomID string, tx *gorm.DB) (*models.RoomRespo
 		Name:        room.Name,
 		Description: room.Description,
 		Files:       responseFiles,
+		Variant:     room.Variant,
+		Detective:   room.Detective,
 	}, nil
 }
 
@@ -101,6 +108,8 @@ func (s *roomService) GetAllRooms(tx *gorm.DB) ([]models.RoomResponseDTO, error)
 			Name:        room.Name,
 			Description: room.Description,
 			Files:       responseFiles,
+			Variant:     room.Variant,
+			Detective:   room.Detective,
 		})
 	}
 
@@ -120,6 +129,8 @@ func (s *roomService) UpdateRoom(roomID string, validationData models.RoomCreate
 	// Update room details
 	room.Name = validationData.Name
 	room.Description = validationData.Description
+	room.VariantID = validationData.Variant
+	room.DetectiveID = validationData.Detective
 
 	var files []models.File
 	for _, fileHeader := range validationData.Files {
@@ -151,6 +162,8 @@ func (s *roomService) UpdateRoom(roomID string, validationData models.RoomCreate
 		Name:        updatedRoom.Name,
 		Description: updatedRoom.Description,
 		Files:       responseFiles,
+		Variant:     updatedRoom.Variant,
+		Detective:   updatedRoom.Detective,
 	}, nil
 }
 
