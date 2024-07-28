@@ -10,6 +10,8 @@ type RoomRoleRepository interface {
 	CreateRoomRole(roomRole *models.RoomRole, tx *gorm.DB) (*models.RoomRole, error)
 	GetRoomRoleByID(roomRoleID string, tx *gorm.DB) (*models.RoomRole, error)
 	GetRoomRoleByUserID(userID string, tx *gorm.DB) ([]models.RoomRole, error)
+	GetRoomRoleByRoomID(roomID string, tx *gorm.DB) ([]models.RoomRole, error)
+	GetRoomRoleByUserIDAndRoomID(userID string, roomID string, tx *gorm.DB) ([]models.RoomRole, error)
 	GetAllRoomRoles(tx *gorm.DB) ([]models.RoomRole, error)
 	DeleteRoomRole(roomRoleID string, tx *gorm.DB) error
 	UpdateRoomRole(roomRole *models.RoomRole, tx *gorm.DB) (*models.RoomRole, error)
@@ -32,7 +34,7 @@ func (r *roomRoleRepository) CreateRoomRole(roomRole *models.RoomRole, tx *gorm.
 
 func (r *roomRoleRepository) GetRoomRoleByID(roomRoleID string, tx *gorm.DB) (*models.RoomRole, error) {
 	var roomRole models.RoomRole
-	if err := tx.First(&roomRole, roomRoleID).Error; err != nil {
+	if err := tx.Preload("Room").Preload("User").First(&roomRole, roomRoleID).Error; err != nil {
 		return nil, err
 	}
 	return &roomRole, nil
@@ -40,7 +42,23 @@ func (r *roomRoleRepository) GetRoomRoleByID(roomRoleID string, tx *gorm.DB) (*m
 
 func (r *roomRoleRepository) GetRoomRoleByUserID(userID string, tx *gorm.DB) ([]models.RoomRole, error) {
 	var roomRoles []models.RoomRole
-	if err := tx.Where("user_id = ?", userID).Find(&roomRoles).Error; err != nil {
+	if err := tx.Preload("Room").Preload("User").Where("user_id = ?", userID).Find(&roomRoles).Error; err != nil {
+		return nil, err
+	}
+	return roomRoles, nil
+}
+
+func (r *roomRoleRepository) GetRoomRoleByRoomID(roomID string, tx *gorm.DB) ([]models.RoomRole, error) {
+	var roomRoles []models.RoomRole
+	if err := tx.Preload("Room").Preload("User").Where("room_id = ?", roomID).Find(&roomRoles).Error; err != nil {
+		return nil, err
+	}
+	return roomRoles, nil
+}
+
+func (r *roomRoleRepository) GetRoomRoleByUserIDAndRoomID(userID string, roomID string, tx *gorm.DB) ([]models.RoomRole, error) {
+	var roomRoles []models.RoomRole
+	if err := tx.Preload("Room").Preload("User").Where("user_id = ? AND room_id = ?", userID, roomID).Find(&roomRoles).Error; err != nil {
 		return nil, err
 	}
 	return roomRoles, nil
@@ -48,7 +66,7 @@ func (r *roomRoleRepository) GetRoomRoleByUserID(userID string, tx *gorm.DB) ([]
 
 func (r *roomRoleRepository) GetAllRoomRoles(tx *gorm.DB) ([]models.RoomRole, error) {
 	var roomRoles []models.RoomRole
-	if err := tx.Find(&roomRoles).Error; err != nil {
+	if err := tx.Preload("Room").Preload("User").Find(&roomRoles).Error; err != nil {
 		return nil, err
 	}
 	return roomRoles, nil

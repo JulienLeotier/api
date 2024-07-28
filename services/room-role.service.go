@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"geniale/models"
 	"geniale/repositories"
 
@@ -8,12 +9,14 @@ import (
 )
 
 type RoomRoleService interface {
-	CreateRoomRole(validationData models.RoomRole, tx *gorm.DB) (*models.RoomRole, error)
+	CreateRoomRole(validationData models.RoomRoleCreateDTO, tx *gorm.DB) (*models.RoomRole, error)
 	GetRoomRoleByID(roomRoleID string, tx *gorm.DB) (*models.RoomRole, error)
 	GetRoomRoleByUserID(userID string, tx *gorm.DB) ([]models.RoomRole, error)
+	GetRoomRoleByRoomID(roomID string, tx *gorm.DB) ([]models.RoomRole, error)
+	GetRoomRoleByUserIDAndRoomID(userID string, roomID string, tx *gorm.DB) ([]models.RoomRole, error)
 	GetAllRoomRoles(tx *gorm.DB) ([]models.RoomRole, error)
 	DeleteRoomRole(roomRoleID string, tx *gorm.DB) error
-	UpdateRoomRole(roomRoleID string, validationData models.RoomRole, tx *gorm.DB) (*models.RoomRole, error)
+	UpdateRoomRole(roomRoleID string, validationData models.RoomRoleCreateDTO, tx *gorm.DB) (*models.RoomRole, error)
 }
 
 type roomRoleService struct {
@@ -24,7 +27,7 @@ func NewRoomRoleService(repo repositories.RoomRoleRepository) RoomRoleService {
 	return &roomRoleService{repository: repo}
 }
 
-func (s *roomRoleService) CreateRoomRole(validationData models.RoomRole, tx *gorm.DB) (*models.RoomRole, error) {
+func (s *roomRoleService) CreateRoomRole(validationData models.RoomRoleCreateDTO, tx *gorm.DB) (*models.RoomRole, error) {
 	roomRole := &models.RoomRole{
 		RoomID:   validationData.RoomID,
 		UserID:   validationData.UserID,
@@ -39,7 +42,7 @@ func (s *roomRoleService) CreateRoomRole(validationData models.RoomRole, tx *gor
 	if err != nil {
 		return nil, err
 	}
-	return roomRoleSave, nil
+	return s.repository.GetRoomRoleByID(string(roomRoleSave.ID), tx)
 }
 
 func (s *roomRoleService) GetRoomRoleByID(roomRoleID string, tx *gorm.DB) (*models.RoomRole, error) {
@@ -50,6 +53,14 @@ func (s *roomRoleService) GetRoomRoleByUserID(userID string, tx *gorm.DB) ([]mod
 	return s.repository.GetRoomRoleByUserID(userID, tx)
 }
 
+func (s *roomRoleService) GetRoomRoleByRoomID(roomID string, tx *gorm.DB) ([]models.RoomRole, error) {
+	return s.repository.GetRoomRoleByRoomID(roomID, tx)
+}
+
+func (s *roomRoleService) GetRoomRoleByUserIDAndRoomID(userID string, roomID string, tx *gorm.DB) ([]models.RoomRole, error) {
+	return s.repository.GetRoomRoleByUserIDAndRoomID(userID, roomID, tx)
+}
+
 func (s *roomRoleService) GetAllRoomRoles(tx *gorm.DB) ([]models.RoomRole, error) {
 	return s.repository.GetAllRoomRoles(tx)
 }
@@ -58,7 +69,7 @@ func (s *roomRoleService) DeleteRoomRole(roomRoleID string, tx *gorm.DB) error {
 	return s.repository.DeleteRoomRole(roomRoleID, tx)
 }
 
-func (s *roomRoleService) UpdateRoomRole(roomRoleID string, validationData models.RoomRole, tx *gorm.DB) (*models.RoomRole, error) {
+func (s *roomRoleService) UpdateRoomRole(roomRoleID string, validationData models.RoomRoleCreateDTO, tx *gorm.DB) (*models.RoomRole, error) {
 	roomRole, err := s.repository.GetRoomRoleByID(roomRoleID, tx)
 	if err != nil {
 		return nil, err
@@ -73,5 +84,9 @@ func (s *roomRoleService) UpdateRoomRole(roomRoleID string, validationData model
 	roomRole.Passion = validationData.Passion
 	roomRole.Anecdote = validationData.Anecdote
 
-	return s.repository.UpdateRoomRole(roomRole, tx)
+	updatedRoomRole, err := s.repository.UpdateRoomRole(roomRole, tx)
+	if err != nil {
+		return nil, err
+	}
+	return s.repository.GetRoomRoleByID(fmt.Sprint(updatedRoomRole.ID), tx)
 }

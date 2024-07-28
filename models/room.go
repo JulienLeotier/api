@@ -44,7 +44,9 @@ type RoomResponseDTO struct {
 type RoomRole struct {
 	gorm.Model
 	RoomID   uint   `json:"room_id" gorm:"foreignKey:RoomID"`
+	Room     Room   `json:"room"`
 	UserID   uint   `json:"user_id" gorm:"foreignKey:UserID"`
+	User     User   `json:"user"`
 	Role     string `json:"role"`
 	Name     string `json:"name"`
 	Job      string `json:"job"`

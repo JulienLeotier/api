@@ -20,16 +20,11 @@ func NewRoomRoleController(roomRoleService services.RoomRoleService) *RoomRoleCo
 }
 
 func (ctrl *RoomRoleController) CreateRoomRole(ctx *gin.Context) {
-	var validatedData models.RoomRole
-
-	if err := ctx.ShouldBind(&validatedData); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	validatedData := ctx.MustGet("dto").(*models.RoomRoleCreateDTO)
 
 	tx := ctx.MustGet("tx").(*gorm.DB)
 
-	roomRole, err := ctrl.services.CreateRoomRole(validatedData, tx)
+	roomRole, err := ctrl.services.CreateRoomRole(*validatedData, tx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -38,11 +33,11 @@ func (ctrl *RoomRoleController) CreateRoomRole(ctx *gin.Context) {
 }
 
 func (ctrl *RoomRoleController) GetRoomRole(ctx *gin.Context) {
-	roomRoleID := ctx.MustGet("id").(string)
+	id := ctx.MustGet("id").(string)
 
 	tx := ctx.MustGet("tx").(*gorm.DB)
 
-	roomRole, err := ctrl.services.GetRoomRoleByID(roomRoleID, tx)
+	roomRole, err := ctrl.services.GetRoomRoleByID(id, tx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -52,15 +47,40 @@ func (ctrl *RoomRoleController) GetRoomRole(ctx *gin.Context) {
 }
 
 func (ctrl *RoomRoleController) GetRoomRoleByUserID(ctx *gin.Context) {
-	userID := ctx.MustGet("userID").(string)
-	idUser := ctx.GetString("id")
-	if userID != idUser {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "You can only view your own information"})
-		return
-	}
+	userID := ctx.Param("id")
+
 	tx := ctx.MustGet("tx").(*gorm.DB)
 
 	roomRoles, err := ctrl.services.GetRoomRoleByUserID(userID, tx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": roomRoles})
+}
+
+func (ctrl *RoomRoleController) GetRoomRoleByRoomID(ctx *gin.Context) {
+	roomID := ctx.Param("id")
+
+	tx := ctx.MustGet("tx").(*gorm.DB)
+
+	roomRoles, err := ctrl.services.GetRoomRoleByRoomID(roomID, tx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": roomRoles})
+}
+
+func (ctrl *RoomRoleController) GetRoomRoleByUserIDAndRoomID(ctx *gin.Context) {
+	userID := ctx.Param("user_id")
+	roomID := ctx.Param("room_id")
+
+	tx := ctx.MustGet("tx").(*gorm.DB)
+
+	roomRoles, err := ctrl.services.GetRoomRoleByUserIDAndRoomID(userID, roomID, tx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -82,11 +102,11 @@ func (ctrl *RoomRoleController) GetAllRoomRoles(ctx *gin.Context) {
 }
 
 func (ctrl *RoomRoleController) DeleteRoomRole(ctx *gin.Context) {
-	roomRoleID := ctx.MustGet("id").(string)
+	id := ctx.MustGet("id").(string)
 
 	tx := ctx.MustGet("tx").(*gorm.DB)
 
-	if err := ctrl.services.DeleteRoomRole(roomRoleID, tx); err != nil {
+	if err := ctrl.services.DeleteRoomRole(id, tx); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -95,17 +115,17 @@ func (ctrl *RoomRoleController) DeleteRoomRole(ctx *gin.Context) {
 }
 
 func (ctrl *RoomRoleController) UpdateRoomRole(ctx *gin.Context) {
-	roomRoleID := ctx.MustGet("id").(string)
+	id := ctx.MustGet("id").(string)
 
-	var validatedData models.RoomRole
-	if err := ctx.ShouldBind(&validatedData); err != nil {
+	var validatedData models.RoomRoleCreateDTO
+	if err := ctx.ShouldBindJSON(&validatedData); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	tx := ctx.MustGet("tx").(*gorm.DB)
 
-	roomRole, err := ctrl.services.UpdateRoomRole(roomRoleID, validatedData, tx)
+	roomRole, err := ctrl.services.UpdateRoomRole(id, validatedData, tx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
