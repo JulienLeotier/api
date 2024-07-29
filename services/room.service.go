@@ -28,46 +28,59 @@ func NewRoomService(repo repositories.RoomRepository, userRepo repositories.User
 	return &roomService{repository: repo, userRepo: userRepo}
 }
 
-func (s *roomService) CreateRoom(validationData models.RoomCreateDTO, tx *gorm.DB) (*models.RoomResponseDTO, error) {
+func saveFiles(fileHeaders []*multipart.FileHeader) ([]models.File, error) {
 	var files []models.File
-	for _, fileHeader := range validationData.Files {
-		// Save the file to the server
+	for _, fileHeader := range fileHeaders {
 		filename := filepath.Base(fileHeader.Filename)
 		filePath := "./uploads/" + filename
 		if err := saveUploadedFile(fileHeader, filePath); err != nil {
 			return nil, err
 		}
-
-		// Create File model
 		file := models.File{URL: filePath}
 		files = append(files, file)
 	}
+	return files, nil
+}
+
+func (s *roomService) CreateRoom(validationData models.RoomCreateDTO, tx *gorm.DB) (*models.RoomResponseDTO, error) {
+	enigmaFiles, err := saveFiles(validationData.EnigmaFiles)
+	if err != nil {
+		return nil, err
+	}
+	revelationFiles, err := saveFiles(validationData.RevelationFiles)
+	if err != nil {
+		return nil, err
+	}
+	introFiles, err := saveFiles(validationData.IntroFiles)
+	if err != nil {
+		return nil, err
+	}
+	outroFiles, err := saveFiles(validationData.OutroFiles)
+	if err != nil {
+		return nil, err
+	}
+	ambianceMusicFiles, err := saveFiles(validationData.AmbianceMusicFiles)
+	if err != nil {
+		return nil, err
+	}
 
 	room := &models.Room{
-		Name:        validationData.Name,
-		Description: validationData.Description,
-		Files:       files,
-		VariantID:   validationData.Variant,
-		DetectiveID: validationData.Detective,
+		Name:               validationData.Name,
+		Description:        validationData.Description,
+		EnigmaFiles:        enigmaFiles,
+		RevelationFiles:    revelationFiles,
+		IntroFiles:         introFiles,
+		OutroFiles:         outroFiles,
+		AmbianceMusicFiles: ambianceMusicFiles,
+		VariantID:          validationData.Variant,
+		DetectiveID:        validationData.Detective,
 	}
 	roomSave, err := s.repository.CreateRoom(room, tx)
 	if err != nil {
 		return nil, err
 	}
 
-	// Prepare response DTO
-	responseFiles := make([]string, len(files))
-	for i, file := range files {
-		responseFiles[i] = file.URL
-	}
-	return &models.RoomResponseDTO{
-		ID:          roomSave.ID,
-		Name:        roomSave.Name,
-		Description: roomSave.Description,
-		Files:       responseFiles,
-		Variant:     roomSave.Variant,
-		Detective:   roomSave.Detective,
-	}, nil
+	return s.buildRoomResponse(roomSave), nil
 }
 
 func (s *roomService) GetRoomByID(roomID string, tx *gorm.DB) (*models.RoomResponseDTO, error) {
@@ -75,20 +88,7 @@ func (s *roomService) GetRoomByID(roomID string, tx *gorm.DB) (*models.RoomRespo
 	if err != nil {
 		return nil, err
 	}
-
-	// Prepare response DTO
-	responseFiles := make([]string, len(room.Files))
-	for i, file := range room.Files {
-		responseFiles[i] = file.URL
-	}
-	return &models.RoomResponseDTO{
-		ID:          room.ID,
-		Name:        room.Name,
-		Description: room.Description,
-		Files:       responseFiles,
-		Variant:     room.Variant,
-		Detective:   room.Detective,
-	}, nil
+	return s.buildRoomResponse(room), nil
 }
 
 func (s *roomService) GetAllRooms(tx *gorm.DB) ([]models.RoomResponseDTO, error) {
@@ -99,18 +99,7 @@ func (s *roomService) GetAllRooms(tx *gorm.DB) ([]models.RoomResponseDTO, error)
 
 	var responseRooms []models.RoomResponseDTO
 	for _, room := range rooms {
-		responseFiles := make([]string, len(room.Files))
-		for i, file := range room.Files {
-			responseFiles[i] = file.URL
-		}
-		responseRooms = append(responseRooms, models.RoomResponseDTO{
-			ID:          room.ID,
-			Name:        room.Name,
-			Description: room.Description,
-			Files:       responseFiles,
-			Variant:     room.Variant,
-			Detective:   room.Detective,
-		})
+		responseRooms = append(responseRooms, *s.buildRoomResponse(&room))
 	}
 
 	return responseRooms, nil
@@ -126,45 +115,67 @@ func (s *roomService) UpdateRoom(roomID string, validationData models.RoomCreate
 		return nil, err
 	}
 
-	// Update room details
 	room.Name = validationData.Name
 	room.Description = validationData.Description
 	room.VariantID = validationData.Variant
 	room.DetectiveID = validationData.Detective
 
-	var files []models.File
-	for _, fileHeader := range validationData.Files {
-		// Save the file to the server
-		filename := filepath.Base(fileHeader.Filename)
-		filePath := "./uploads/" + filename
-		if err := saveUploadedFile(fileHeader, filePath); err != nil {
-			return nil, err
-		}
-
-		// Create File model
-		file := models.File{URL: filePath}
-		files = append(files, file)
+	enigmaFiles, err := saveFiles(validationData.EnigmaFiles)
+	if err != nil {
+		return nil, err
+	}
+	revelationFiles, err := saveFiles(validationData.RevelationFiles)
+	if err != nil {
+		return nil, err
+	}
+	introFiles, err := saveFiles(validationData.IntroFiles)
+	if err != nil {
+		return nil, err
+	}
+	outroFiles, err := saveFiles(validationData.OutroFiles)
+	if err != nil {
+		return nil, err
+	}
+	ambianceMusicFiles, err := saveFiles(validationData.AmbianceMusicFiles)
+	if err != nil {
+		return nil, err
 	}
 
-	room.Files = files
+	room.EnigmaFiles = enigmaFiles
+	room.RevelationFiles = revelationFiles
+	room.IntroFiles = introFiles
+	room.OutroFiles = outroFiles
+	room.AmbianceMusicFiles = ambianceMusicFiles
+
 	updatedRoom, err := s.repository.UpdateRoom(room, tx)
 	if err != nil {
 		return nil, err
 	}
 
-	// Prepare response DTO
-	responseFiles := make([]string, len(files))
-	for i, file := range files {
-		responseFiles[i] = file.URL
-	}
+	return s.buildRoomResponse(updatedRoom), nil
+}
+
+func (s *roomService) buildRoomResponse(room *models.Room) *models.RoomResponseDTO {
 	return &models.RoomResponseDTO{
-		ID:          updatedRoom.ID,
-		Name:        updatedRoom.Name,
-		Description: updatedRoom.Description,
-		Files:       responseFiles,
-		Variant:     updatedRoom.Variant,
-		Detective:   updatedRoom.Detective,
-	}, nil
+		ID:                 room.ID,
+		Name:               room.Name,
+		Description:        room.Description,
+		EnigmaFiles:        extractFileURLs(room.EnigmaFiles),
+		RevelationFiles:    extractFileURLs(room.RevelationFiles),
+		IntroFiles:         extractFileURLs(room.IntroFiles),
+		OutroFiles:         extractFileURLs(room.OutroFiles),
+		AmbianceMusicFiles: extractFileURLs(room.AmbianceMusicFiles),
+		Variant:            room.Variant,
+		Detective:          room.Detective,
+	}
+}
+
+func extractFileURLs(files []models.File) []string {
+	fileURLs := make([]string, len(files))
+	for i, file := range files {
+		fileURLs[i] = file.URL
+	}
+	return fileURLs
 }
 
 func saveUploadedFile(fileHeader *multipart.FileHeader, dest string) error {

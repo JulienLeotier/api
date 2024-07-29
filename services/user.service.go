@@ -152,3 +152,11 @@ func (s *UserService) GetCode(user *models.User) (*models.UserCode, error) {
 	}
 	return result, nil
 }
+
+func (s *UserService) GetAllUsers() ([]*models.User, error) {
+	users, err := s.UserRepo.GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}

@@ -339,3 +339,13 @@ func (ctrl *UserController) CheckCode(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Code is valid"})
 }
+
+func (ctrl *UserController) GetAllUsers(c *gin.Context) {
+	users, err := ctrl.UserService.GetAllUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get users"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"users": users})
+}

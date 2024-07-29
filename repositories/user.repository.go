@@ -84,3 +84,12 @@ func (r *UserRepository) GetUserByID(userID uint, tx *gorm.DB) (*models.User, er
 	}
 	return &user, nil
 }
+
+func (r *UserRepository) GetAllUsers() ([]*models.User, error) {
+	var users []*models.User
+	result := r.DB.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return users, nil
+}

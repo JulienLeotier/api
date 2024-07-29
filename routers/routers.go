@@ -40,6 +40,7 @@ func SetupModuleRoutes(r *gin.Engine, db *gorm.DB) {
 		transcation.POST("/users/register", utils.JSONValidationMiddleware(new(models.UserCreateDTO)), userController.CreateUser)
 		transcation.POST("/users/request-password-reset", utils.JSONValidationMiddleware(new(models.PasswordResetDTO)), userController.RequestPasswordReset)
 		transcation.POST("/users/reset-password", utils.JSONValidationMiddleware(new(models.UpdatePasswordDTO)), userController.ResetPassword)
+		transcation.GET("/users", utils.AuthMiddleware, userController.GetAllUsers)
 		transcation.PUT("/users/:id", utils.AuthMiddleware, utils.UserAuthMiddleware, userController.UpdateUser)
 		transcation.PUT("/users/:id/change-password", utils.AuthMiddleware, utils.UserAuthMiddleware, userController.ChangePassword)
 		transcation.GET("/auth/:provider/callback", utils.CompleteAuthHandler)

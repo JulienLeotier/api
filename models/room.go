@@ -8,13 +8,17 @@ import (
 
 type Room struct {
 	gorm.Model
-	Name        string `json:"name" gorm:"unique;not null"`
-	Description string `json:"description"`
-	Files       []File `json:"files" gorm:"many2many:room_files;"`
-	VariantID   uint   `json:"variant_id"`
-	Variant     User   `json:"variant" gorm:"foreignKey:VariantID"`
-	DetectiveID uint   `json:"detective_id"`
-	Detective   User   `json:"detective" gorm:"foreignKey:DetectiveID"`
+	Name               string `json:"name" gorm:"unique;not null"`
+	Description        string `json:"description"`
+	EnigmaFiles        []File `json:"enigma_files" gorm:"many2many:room_enigma_files;"`
+	RevelationFiles    []File `json:"revelation_files" gorm:"many2many:room_revelation_files;"`
+	IntroFiles         []File `json:"intro_files" gorm:"many2many:room_intro_files;"`
+	OutroFiles         []File `json:"outro_files" gorm:"many2many:room_outro_files;"`
+	AmbianceMusicFiles []File `json:"ambiance_music_files" gorm:"many2many:room_ambiance_music_files;"`
+	VariantID          uint   `json:"variant_id"`
+	Variant            User   `json:"variant" gorm:"foreignKey:VariantID"`
+	DetectiveID        uint   `json:"detective_id"`
+	Detective          User   `json:"detective" gorm:"foreignKey:DetectiveID"`
 }
 
 type File struct {
@@ -24,21 +28,29 @@ type File struct {
 }
 
 type RoomCreateDTO struct {
-	ID          uint                    `json:"id"`
-	Name        string                  `form:"name" binding:"required"`
-	Description string                  `form:"description"`
-	Files       []*multipart.FileHeader `form:"file" binding:"required"`
-	Variant     uint                    `form:"variant" binding:"required"`
-	Detective   uint                    `form:"detective" binding:"required"`
+	ID                 uint                    `json:"id"`
+	Name               string                  `form:"name" binding:"required"`
+	Description        string                  `form:"description"`
+	EnigmaFiles        []*multipart.FileHeader `form:"enigma_files"`
+	RevelationFiles    []*multipart.FileHeader `form:"revelation_files"`
+	IntroFiles         []*multipart.FileHeader `form:"intro_files"`
+	OutroFiles         []*multipart.FileHeader `form:"outro_files"`
+	AmbianceMusicFiles []*multipart.FileHeader `form:"ambiance_music_files"`
+	Variant            uint                    `form:"variant" binding:"required"`
+	Detective          uint                    `form:"detective" binding:"required"`
 }
 
 type RoomResponseDTO struct {
-	ID          uint     `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Files       []string `json:"files"`
-	Variant     User     `json:"variant"`
-	Detective   User     `json:"detective"`
+	ID                 uint     `json:"id"`
+	Name               string   `json:"name"`
+	Description        string   `json:"description"`
+	EnigmaFiles        []string `json:"enigma_files"`
+	RevelationFiles    []string `json:"revelation_files"`
+	IntroFiles         []string `json:"intro_files"`
+	OutroFiles         []string `json:"outro_files"`
+	AmbianceMusicFiles []string `json:"ambiance_music_files"`
+	Variant            User     `json:"variant"`
+	Detective          User     `json:"detective"`
 }
 
 type RoomRole struct {
