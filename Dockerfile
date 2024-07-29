@@ -11,6 +11,6 @@ RUN go mod download
 
 COPY . .
 
-ENTRYPOINT CompileDaemon --build="go build -o main cmd/main.go" --command="./main"
+ENTRYPOINT CompileDaemon --build="go build -o main server.go" --command="./main"
 
 EXPOSE 8080

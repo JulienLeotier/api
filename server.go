@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -35,7 +36,11 @@ func main() {
 		google.New(os.Getenv("GOOGLE_KEY"), os.Getenv("GOOGLE_SECRET"), os.Getenv("GOOGLE_REDIRECT_URI")),
 		facebook.New(os.Getenv("FACEBOOK_KEY"), os.Getenv("FACEBOOK_SECRET"), os.Getenv("FACEBOOK_REDIRECT_URI")),
 	)
+	port := os.Getenv("PORT")
 
+	if port == "" {
+		port = "8000"
+	}
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -48,7 +53,7 @@ func main() {
 	moduleRouter.SetupModuleRoutes(r, utils.DB)
 	r.Static("/uploads", "./uploads")
 
-	err := r.Run()
+	err := r.Run(fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatal(err)
 	}
