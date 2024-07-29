@@ -116,16 +116,11 @@ func (ctrl *RoomRoleController) DeleteRoomRole(ctx *gin.Context) {
 
 func (ctrl *RoomRoleController) UpdateRoomRole(ctx *gin.Context) {
 	id := ctx.MustGet("id").(string)
-
-	var validatedData models.RoomRoleCreateDTO
-	if err := ctx.ShouldBindJSON(&validatedData); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	validatedData := ctx.MustGet("dto").(*models.RoomRoleCreateDTO)
 
 	tx := ctx.MustGet("tx").(*gorm.DB)
 
-	roomRole, err := ctrl.services.UpdateRoomRole(id, validatedData, tx)
+	roomRole, err := ctrl.services.UpdateRoomRole(id, *validatedData, tx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
