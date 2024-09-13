@@ -35,9 +35,9 @@ func TransactionMiddleware(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		if err := tx.Commit().Error; err != nil {
+			tx.Rollback()
 			log.Println("Transaction commit failed:", err)
 			c.Abort()
-			tx.Rollback()
 		}
 	}
 }

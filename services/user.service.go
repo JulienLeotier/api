@@ -55,7 +55,10 @@ func (s *UserService) CreateTmpUser(validatedData models.UserCreateTmpDTO, tx *g
 
 }
 func (s *UserService) CreateUser(validatedData models.UserCreateDTO, tx *gorm.DB) (*models.User, error) {
-	hashedPassword, _ := utils.HashPassword(validatedData.Password)
+	hashedPassword, err := utils.HashPassword(validatedData.Password)
+	if err != nil {
+		return nil, err
+	}
 	newUser := &models.User{
 		Email:    validatedData.Email,
 		Password: hashedPassword,

@@ -64,7 +64,7 @@ func (ctrl *UserController) GetUser(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid ID format: %v", err)})
 		return
 	}
 
@@ -134,14 +134,16 @@ func (ctrl *UserController) ResetPassword(c *gin.Context) {
 		return
 	}
 
-	hashedPassword, _ := utils.HashPassword(dto.NewPassword)
+	hashedPassword, err := utils.HashPassword(dto.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+	}
 	user.Password = hashedPassword
 	user.PasswordResetToken = ""
 	if err := ctrl.UserService.UpdateUser(&user, tx); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reset password"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"message": "Password reset successfully"})
 }
 

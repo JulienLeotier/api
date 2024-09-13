@@ -18,8 +18,11 @@ import (
 )
 
 func main() {
-	utils.SetupDatabase()
 	key := os.Getenv("SESSION_SECRET")
+	if key == "" {
+		log.Fatal("SESSION_SECRET is not set")
+	}
+	utils.SetupDatabase()
 	maxAge := 86400 * 30
 	isProd := false
 	// Configure CORS
