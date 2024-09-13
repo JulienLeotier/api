@@ -25,14 +25,6 @@ func SetupModuleRoutes(r *gin.Engine, db *gorm.DB) {
 	imageService := services.NewImageService(imageRepository)
 	imageController := controllers.NewImageController(imageService)
 
-	roomRepository := repositories.NewRoomRepository(db)
-	roomService := services.NewRoomService(roomRepository, *userRepo)
-	roomController := controllers.NewRoomController(roomService)
-
-	roomRoleRepository := repositories.NewRoomRoleRepository(db)
-	roomRoleService := services.NewRoomRoleService(roomRoleRepository)
-	roomRoleController := controllers.NewRoomRoleController(roomRoleService)
-
 	transcation := r.Group("/")
 	transcation.Use(utils.TransactionMiddleware(db))
 	{
@@ -61,20 +53,6 @@ func SetupModuleRoutes(r *gin.Engine, db *gorm.DB) {
 		transcation.GET("/images/:id", utils.AuthMiddleware, imageController.GetImage)
 		transcation.GET("/images", utils.AuthMiddleware, imageController.GetImages)
 		transcation.DELETE("/images/:id", utils.AuthMiddleware, imageController.RemoveImage)
-		// Room routes
-		transcation.POST("/rooms", utils.AuthMiddleware, utils.MultipartFormValidationMiddleware(new(models.RoomCreateDTO)), roomController.CreateRoom)
-		transcation.GET("/rooms/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomController.GetRoom)
-		transcation.DELETE("/rooms/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomController.DeleteRoom)
-		transcation.PATCH("/rooms/:id", utils.AuthMiddleware, utils.MultipartFormValidationMiddleware(new(models.RoomCreateDTO)), utils.GetIdMiddleware, roomController.UpdateRoom)
-		transcation.GET("/rooms", utils.AuthMiddleware, roomController.GetAllRooms)
-
-		transcation.POST("/room_roles", utils.AuthMiddleware, utils.JSONValidationMiddleware(new(models.RoomRoleCreateDTO)), roomRoleController.CreateRoomRole)
-		transcation.PUT("/room_roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, utils.JSONValidationMiddleware(new(models.RoomRoleCreateDTO)), roomRoleController.UpdateRoomRole)
-		transcation.GET("/room_roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomRoleController.GetRoomRole)
-		transcation.GET("/room_roles", utils.AuthMiddleware, roomRoleController.GetAllRoomRoles)
-		transcation.DELETE("/room_roles/:id", utils.AuthMiddleware, utils.GetIdMiddleware, roomRoleController.DeleteRoomRole)
-		transcation.GET("/room_roles/user/:user_id/room/:room_id", utils.AuthMiddleware, roomRoleController.GetRoomRoleByUserIDAndRoomID)
-
 	}
 	r.GET("/users/:id", utils.AuthMiddleware, utils.UserAuthMiddleware, userController.GetUser)
 	r.GET("/whoiam", utils.AuthMiddleware, userController.WhoIam)

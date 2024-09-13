@@ -11,7 +11,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
-	"github.com/markbates/goth/providers/facebook"
 	"github.com/markbates/goth/providers/google"
 
 	moduleRouter "geniale/routers"
@@ -34,7 +33,6 @@ func main() {
 	gothic.Store = store
 	goth.UseProviders(
 		google.New(os.Getenv("GOOGLE_KEY"), os.Getenv("GOOGLE_SECRET"), os.Getenv("GOOGLE_REDIRECT_URI")),
-		facebook.New(os.Getenv("FACEBOOK_KEY"), os.Getenv("FACEBOOK_SECRET"), os.Getenv("FACEBOOK_REDIRECT_URI")),
 	)
 	port := os.Getenv("PORT")
 
