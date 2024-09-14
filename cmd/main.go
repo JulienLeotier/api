@@ -13,8 +13,8 @@ import (
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
 
-	moduleRouter "geniale/routers"
-	utils "geniale/utils"
+	moduleRouter "api/routers"
+	utils "api/utils"
 )
 
 func main() {

@@ -7,9 +7,9 @@ import (
 	"os"
 	"strconv"
 
-	"geniale/models"
-	"geniale/services"
-	"geniale/utils"
+	"api/models"
+	"api/services"
+	"api/utils"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"

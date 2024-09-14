@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strconv"
 
-	"geniale/models"
-	"geniale/repositories"
-	"geniale/utils"
+	"api/models"
+	"api/repositories"
+	"api/utils"
 
 	"gorm.io/gorm"
 )

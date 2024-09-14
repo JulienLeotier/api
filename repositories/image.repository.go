@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"geniale/models"
+	"api/models"
 
 	"gorm.io/gorm"
 )

@@ -1,8 +1,8 @@
 package services
 
 import (
-	"geniale/models"
-	"geniale/repositories"
+	"api/models"
+	"api/repositories"
 	"strconv"
 )
 

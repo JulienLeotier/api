@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"geniale/models"
-	"geniale/services"
+	"api/models"
+	"api/services"
 	"net/http"
 	"os"
 	"path/filepath"

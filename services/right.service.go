@@ -1,8 +1,8 @@
 package services
 
 import (
+	"api/models"
 	"errors"
-	"geniale/models"
 	"strconv"
 
 	"gorm.io/gorm"

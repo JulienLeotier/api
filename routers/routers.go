@@ -1,11 +1,11 @@
 package moduleRouter
 
 import (
-	"geniale/controllers"
-	"geniale/models"
-	"geniale/repositories"
-	"geniale/services"
-	"geniale/utils"
+	"api/controllers"
+	"api/models"
+	"api/repositories"
+	"api/services"
+	"api/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
