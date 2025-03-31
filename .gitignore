@@ -26,7 +26,7 @@ node_modules
 
 main
 config.yml
-.env
 credentials.json
 __debug_bin*
 uploads/*
+.env.local

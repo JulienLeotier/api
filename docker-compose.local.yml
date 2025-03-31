@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16
+    env_file: .env.local
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -14,30 +15,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file: .env.local
     ports:
       - "8080:8080"
     volumes:
       - .:/app
     depends_on:
       - db
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - GOOGLE_KEY=${GOOGLE_KEY}
-      - GOOGLE_SECRET=${GOOGLE_SECRET}
-      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - EMAIL_FROM=${EMAIL_FROM}
-      - TEMPLATE_DIR=${TEMPLATE_DIR}
-      - TEMPLATE_RESET_PASSWORD=${TEMPLATE_RESET_PASSWORD}
-      - GOOGLE_REDIRECT_URL_EMAIL=${GOOGLE_REDIRECT_URL_EMAIL}
-      - EMAIL_PORT=${EMAIL_PORT}
-      - EMAIL_HOST=${EMAIL_HOST}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-      - TEMPLATE_EMAIL_CODE=${TEMPLATE_EMAIL_CODE}
 
 volumes:
   postgres-data:
