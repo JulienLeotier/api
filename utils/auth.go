@@ -48,7 +48,7 @@ func CompleteAuthHandler(c *gin.Context) {
 			username = generateUsername(user.Email)
 		}
 		// add here the email of the user you want to allow to connect
-		if user.Email != "julien.leotier@gmail.com" {
+		if user.Email != "email@admin.com" {
 			println(gin.H{"error": "Failed to complete user auth"})
 			c.Redirect(http.StatusTemporaryRedirect, os.Getenv("FRONT")+"/")
 		}
